@@ -1,8 +1,10 @@
 #!/bin/bash
+set -euo pipefail
 
 echo "Initializing Tinker Server Client Environment"
-cd verl-recipes/examples/tinker_server
-uv sync --index-strategy unsafe-best-match
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+cd "${SCRIPT_DIR}/.."
+uv sync
 echo "uv initialization complete"
 
 if [ -n "${TINKER_HF_DATASET_CACHE_ROOT:-}" ]; then

@@ -1,38 +1,18 @@
+import os
 import time
 from urllib.parse import urljoin
 
 import requests
-from ray.serve import get_serve_http_client
 
 
-def wait_for_url(psm: str, max_wait_time: int = 28800):
-    # ex: url = "http://[****:***:cda2:1202:f11b:3ff4:****:****]:11503/"
+def wait_for_url(psm: str | None = None, max_wait_time: int = 28800):
+    """Return the configured Tinker server URL.
 
-    if psm is None or len(psm) == 0:
-        # no psm given, so we just assume it's local development
-        return "http://127.0.0.1:8000/"
-
-    print(f"waiting for url from psm: {psm}")
-    url = ""
-    ct = 0
-    start_time = time.monotonic()
-
-    while url == "":
-        elapsed = time.monotonic() - start_time
-        if elapsed > max_wait_time:
-            raise TimeoutError(f"Timed out waiting for server URL after {max_wait_time} seconds for psm={psm}")
-
-        url = get_serve_http_client(
-            psm=psm,
-        ).get_one_request_url()
-
-        if url == "":
-            ct += 1
-            if ct % 12 == 0:
-                print(f"Server not ready yet, waited: {ct // 12} minutes")
-            time.sleep(5)
-
-    return url
+    Public examples use TINKER_BASE_URL when provided and otherwise assume a
+    local server.
+    """
+    del psm, max_wait_time
+    return os.environ.get("TINKER_BASE_URL", "http://127.0.0.1:8000/")
 
 
 def wait_for_healthz_ready(url: str, max_wait_time: int = 7200):

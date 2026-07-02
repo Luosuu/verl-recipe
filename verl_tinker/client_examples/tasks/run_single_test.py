@@ -23,7 +23,6 @@ ALL_TESTS = {
 
 
 async def main():
-    psm = os.environ.get("SERVER_RAY_SERVE_PROXY_PSM", "")
     test_name = os.environ.get("TEST_NAME", "sft_tulu3")
     model_name = os.environ.get("TINKER_CLIENT_MODEL_NAME", DEFAULT_MODEL_NAME)
     if os.environ.get("TINKER_CI_JOB"):
@@ -33,11 +32,11 @@ async def main():
     if test_name not in ALL_TESTS:
         raise Exception(f"test name: {test_name} is not valid, available tests are: {list(ALL_TESTS.keys())}")
 
-    print(f"Starting to test {test_name} on psm: {psm}, model_name: {model_name}")
+    print(f"Starting to test {test_name}, model_name: {model_name}")
     if tokenizer_name_or_path != model_name:
         print(f"Using tokenizer path: {tokenizer_name_or_path}")
 
-    url = wait_for_url(psm=psm)
+    url = wait_for_url()
     os.environ["TINKER_BASE_URL"] = url
     os.environ["TINKER_API_KEY"] = "tml-verl-tinker-local"
 
