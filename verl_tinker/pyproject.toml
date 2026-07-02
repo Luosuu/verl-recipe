@@ -7,12 +7,19 @@ name = "verl-tinker"
 version = "0.1.0"
 description = "Tinker-compatible server backed by VeRL actors"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12,<3.13"
 license = {text = "Apache-2.0"}
 dependencies = [
     "fastapi",
+    "flash-attn",
+    "protobuf>=4.21,<6",
     "ray[serve]",
-    "tinker>=0.18.0",
+    "tinker==0.18.2",
+    "transformers>=5.12.1,<6",
+    "veomni",
+    "verl @ git+https://github.com/verl-project/verl.git@1ff76cc625e9820d2434dad1b6d9b8e5dd26a359",
+    "vllm>=0.24.0,<0.25",
+    "vexact @ git+https://github.com/verl-project/vexact.git@2da1ea2181b5fe09597077c9dc86539ec047e610",
 ]
 
 [tool.setuptools.package-dir]
@@ -20,3 +27,8 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.uv.sources]
+flash-attn = [
+    { url = "https://github.com/Luosuu/flash-attention3-wheels/releases/download/v0.0.5/flash_attn-2.8.4+20260610.cu130torch2110cxx11abitrue.fb02fc.sm80sm89sm90sm100-cp312-cp312-linux_x86_64.whl", marker = "python_version == '3.12' and sys_platform == 'linux' and platform_machine == 'x86_64'" },
+]

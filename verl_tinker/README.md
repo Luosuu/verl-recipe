@@ -10,26 +10,35 @@ one active training client at a time, not isolated multi-client sessions.
 
 ## Install
 
-Run these commands from the root of `verl-recipe`.
+Run this command from the root of `verl-recipe` in a Python 3.12 environment.
+The combined server environment includes VeXact, which currently requires
+Python `>=3.12,<3.13`.
 
 ```bash
-# 1. Install the compatible core verl version for this recipe.
+# Install the full server runtime for this recipe.
 ./install_verl.sh --recipe verl_tinker
-
-# 2. Install this server package.
-pip install -e verl_tinker
 ```
 
 `install_verl.sh` reads `verl_tinker/REQUIRED_VERL.txt` and runs the recorded
-`pip install verl@git+...` command. Use `--show` to inspect it first:
+install command. For this recipe, that command is `uv sync --project
+verl_tinker --python python3.12`, so the server package and its runtime
+dependencies are resolved together. Use `--show` to inspect it first:
 
 ```bash
 ./install_verl.sh --recipe verl_tinker --show
 ```
 
-The server package declares only its direct server dependencies:
-`fastapi`, `ray[serve]`, and `tinker`. The selected VeRL rollout backend may
-need additional GPU runtime packages, such as vLLM.
+The `verl_tinker` environment includes the pinned core `verl` commit with the
+`vllm` extra, plus VeOmni, VeXact from its GitHub source, Ray Serve, FastAPI,
+Tinker, and the server package itself. Server-side Tinker is currently pinned
+to `0.19.0`: newer Tinker releases changed the forward request types from
+Pydantic models to stdlib dataclasses, which are not compatible with Ray
+Serve's FastAPI ingress serialization path. Transformers is pinned to `5.9.0`,
+which is the API level VeOmni expects for the VeRL engine registration path.
+The quick-start rollout configs use vLLM, so keeping these dependencies in one
+`uv` solve avoids pip reinstalling incompatible versions later. You can use
+`actor.yaml` without vLLM at runtime, but vLLM is still installed as part of
+this recipe environment.
 
 ## Choose A Config
 
@@ -58,22 +67,19 @@ local Ray runtime.
 Actor + rollout:
 
 ```bash
-python -m verl_tinker.start \
-  --config verl_tinker/configs/quick_start/actor_rollout.yaml
+python -m verl_tinker.start --config configs/quick_start/actor_rollout.yaml
 ```
 
 Actor only:
 
 ```bash
-python -m verl_tinker.start \
-  --config verl_tinker/configs/quick_start/actor.yaml
+python -m verl_tinker.start --config configs/quick_start/actor.yaml
 ```
 
 Actor + rollout + reference:
 
 ```bash
-python -m verl_tinker.start \
-  --config verl_tinker/configs/quick_start/actor_rollout_ref.yaml
+python -m verl_tinker.start --config configs/quick_start/actor_rollout_ref.yaml
 ```
 
 Wait for readiness:

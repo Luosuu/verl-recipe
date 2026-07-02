@@ -1,14 +1,12 @@
-# verl_tinker — rolling against upstream main until the compatible core SHA is pinned
+# verl_tinker — rolling recipe refreshed against this exact upstream main commit
 UPSTREAM=https://github.com/verl-project/verl.git
 MODE=rolling
 BRANCH=main
-# This server uses recent VeRL Tinker worker internals. Replace `main` with the
-# exact tested core commit when refreshing this recipe for release.
-VERL_COMMIT=main
-PIP_INSTALL=pip install verl@git+https://github.com/verl-project/verl.git@main
-GIT_SETUP=git clone https://github.com/verl-project/verl.git && cd verl && git checkout main && git submodule update --init --recursive recipe
+VERL_COMMIT=1ff76cc625e9820d2434dad1b6d9b8e5dd26a359
+PIP_INSTALL=uv sync --project verl_tinker --python python3.12
+GIT_SETUP=git clone https://github.com/verl-project/verl.git && cd verl && git checkout 1ff76cc625e9820d2434dad1b6d9b8e5dd26a359 && git submodule update --init --recursive recipe
 RECIPE_SUBMODULE_COMMIT=e44a9ca9a252322f76fe74753cc7afd812355b67
 RECIPE_FOLDER=verl_tinker
 RECIPE_FOLDER_LAST_COMMIT=e44a9ca9a252322f76fe74753cc7afd812355b67
-NOTES=VERL_COMMIT should be tightened to an exact core verl commit once the server-side Tinker worker APIs are pinned.
+NOTES=MODE=rolling means this recipe follows upstream main over time; VERL_COMMIT pins the exact core verl commit tested for this refresh. PIP_INSTALL intentionally runs uv sync for the full Python 3.12 server runtime.
 REFRESH=Recompute: (cd verl && git rev-parse HEAD); (cd verl/recipe && git rev-parse HEAD); (cd verl/recipe && git log -1 --format=%H -- verl_tinker)
