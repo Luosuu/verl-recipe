@@ -1,96 +1,139 @@
 # VeRL Tinker Server
 
 `verl_tinker` runs a local FastAPI/Ray Serve HTTP server that exposes
-Tinker-compatible endpoints backed by VeRL actors. It is intended for users who
-have their own GPU capacity and want to run Tinker client code against a local
-or self-managed VeRL deployment.
+Tinker-compatible endpoints backed by VeRL actors. Use it when you want to run
+Tinker or Tinker Cookbook client code against your own VeRL workers and GPU
+capacity.
 
-The server owns one global model/session/sampler state. It is designed for a
-single active training client, not isolated multi-tenant Tinker sessions.
+The server owns one global model, session, and sampler state. It is intended for
+one active training client at a time, not isolated multi-client sessions.
 
-## Installation
+## Install
 
-Install the compatible core `verl` first. This repo follows the standard
-`REQUIRED_VERL.txt` convention:
+Run these commands from the root of `verl-recipe`.
 
 ```bash
+# 1. Install the compatible core verl version for this recipe.
 ./install_verl.sh --recipe verl_tinker
-```
 
-Then install this server package from the repository root:
-
-```bash
+# 2. Install this server package.
 pip install -e verl_tinker
 ```
 
-When rollout/sampling is enabled, install the GPU/runtime dependencies needed by
-the selected VeRL rollout backend, such as vLLM.
+`install_verl.sh` reads `verl_tinker/REQUIRED_VERL.txt` and runs the recorded
+`pip install verl@git+...` command. Use `--show` to inspect it first:
 
-## Configuration
+```bash
+./install_verl.sh --recipe verl_tinker --show
+```
 
-The server starts from a YAML config that follows the usual VeRL config shape,
-with an additional top-level `server` section.
+The server package declares only its direct server dependencies:
+`fastapi`, `ray[serve]`, and `tinker`. The selected VeRL rollout backend may
+need additional GPU runtime packages, such as vLLM.
 
-Quick-start configs launch Qwen3-1.7B by default. Override it with
-`TINKER_SERVER_MODEL` or by editing `actor_rollout_ref.model.path`.
+## Choose A Config
 
-- `configs/quick_start/actor_rollout.yaml`: actor + rollout. Use this when
-  Tinker code needs `asample`.
-- `configs/quick_start/actor_rollout_ref.yaml`: actor + rollout + reference
-  model. Use this when KL-enabled loss requires reference log probabilities.
-- `configs/quick_start/actor.yaml`: actor only. Sampling is unavailable; use
-  this for forward/backward and optimizer-only workflows.
+Quick-start configs are under `verl_tinker/configs/quick_start/`.
+
+- `actor.yaml`: actor only. Use this for SFT or optimizer-only workflows that do
+  not call `asample`.
+- `actor_rollout.yaml`: actor + rollout. Use this when clients call `asample`.
+- `actor_rollout_ref.yaml`: actor + rollout + reference model. Use this for
+  KL-enabled RL workloads.
+
+Common environment overrides:
+
+```bash
+export TINKER_SERVER_MODEL=Qwen/Qwen3-1.7B
+export TINKER_SERVER_N_GPUS_PER_NODE=8
+export TINKER_SERVER_PORT=8000
+export TINKER_CHECKPOINT_DIR=/tmp/tinker-checkpoints
+```
+
+For an existing Ray cluster, set `RAY_ADDRESS`; otherwise the server starts a
+local Ray runtime.
 
 ## Start The Server
 
-From the repository root:
+Actor + rollout:
 
 ```bash
 python -m verl_tinker.start \
   --config verl_tinker/configs/quick_start/actor_rollout.yaml
 ```
 
-Actor-only mode:
+Actor only:
 
 ```bash
 python -m verl_tinker.start \
   --config verl_tinker/configs/quick_start/actor.yaml
 ```
 
-Actor + rollout + reference mode:
+Actor + rollout + reference:
 
 ```bash
 python -m verl_tinker.start \
   --config verl_tinker/configs/quick_start/actor_rollout_ref.yaml
 ```
 
-The process initializes Ray, deploys a single Ray Serve replica, and loads the
-VeRL backend asynchronously. Check readiness with:
+Wait for readiness:
 
 ```bash
 curl http://127.0.0.1:8000/api/v1/healthz
 ```
 
-Launch helpers are available under `launch_scripts/`.
+Expected ready response:
 
-## Tinker Client Setup
+```json
+{"status": "ready"}
+```
 
-Point Tinker clients at the server:
+Stop the server:
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/shutdown
+```
+
+## Use A Tinker Client
+
+Point the client process at the server:
+
+```bash
+export TINKER_BASE_URL=http://127.0.0.1:8000/
+export TINKER_API_KEY=tml-verl-tinker-local
+```
+
+The API key is a compatibility value; the current server accepts keys that start
+with `tml`.
+
+Then run normal Tinker or Tinker Cookbook code. For example:
 
 ```python
 import os
+import tinker
 
 os.environ["TINKER_BASE_URL"] = "http://127.0.0.1:8000/"
 os.environ["TINKER_API_KEY"] = "tml-verl-tinker-local"
+
+client = tinker.ServiceClient(base_url=os.environ["TINKER_BASE_URL"])
 ```
 
-The current server accepts API keys that start with `tml`.
+## Run The Included Client Examples
 
-## Client Examples
+The examples intentionally use a separate client environment, because real
+Tinker clients do not need the server package or core VeRL installed.
 
-Client examples live in `client_examples/` and intentionally use a separate
-environment with `tinker` and `tinker-cookbook`. See
-`client_examples/README.md`.
+```bash
+cd verl_tinker/client_examples
+uv sync
+
+uv run tasks/run_single_test.py \
+  --base-url http://127.0.0.1:8000/ \
+  --test-name sft_tulu3
+```
+
+Available `--test-name` values are documented in
+`verl_tinker/client_examples/README.md`.
 
 ## API Surface
 
@@ -129,10 +172,10 @@ Training, sampling, and checkpoint operations:
 Most long-running operations return a `request_id`. Poll
 `/api/v1/retrieve_future` with that ID until the result is available.
 
-## Current Limitations
+## Limitations
 
 - Critic, reward model, and teacher model serving are not supported.
 - LoRA training is not supported. Some LoRA-shaped metadata is returned for
-  Tinker cookbook compatibility, but the backend trains full model weights.
+  Tinker Cookbook compatibility, but the backend trains full model weights.
 - Multiple clients are not isolated: they share one model state, optimizer
   state, and sampler state.

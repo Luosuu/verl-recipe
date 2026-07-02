@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 import os
 
@@ -6,11 +7,12 @@ from tasks.math_sft_rl.gsm8k import run_math_sft_rl_gsm8k_test
 from tasks.sdft.single_task import run_sdft_single_task_test
 from tasks.sft.no_robots import run_no_robot_direct_sft_test, run_no_robot_test
 from tasks.sft.tulu3 import run_tulu3_test
-from tasks.utils import shutdown_server, wait_for_healthz_ready, wait_for_url
+from tasks.utils import shutdown_server, wait_for_healthz_ready
 
 
 DEFAULT_MODEL_NAME = "Qwen/Qwen3-1.7B"
-CI_TOKENIZER_PATH = "/mnt/hdfs/model"
+DEFAULT_BASE_URL = "http://127.0.0.1:8000/"
+DEFAULT_API_KEY = "tml-verl-tinker-local"
 
 ALL_TESTS = {
     "sft_tulu3": run_tulu3_test,
@@ -22,13 +24,14 @@ ALL_TESTS = {
 }
 
 
-async def main():
-    test_name = os.environ.get("TEST_NAME", "sft_tulu3")
-    model_name = os.environ.get("TINKER_CLIENT_MODEL_NAME", DEFAULT_MODEL_NAME)
-    if os.environ.get("TINKER_CI_JOB"):
-        tokenizer_name_or_path = CI_TOKENIZER_PATH
-    else:
-        tokenizer_name_or_path = os.environ.get("TINKER_CLIENT_TOKENIZER_PATH", "") or model_name
+async def main(
+    test_name: str,
+    model_name: str,
+    tokenizer_name_or_path: str | None,
+    base_url: str,
+    api_key: str,
+) -> int:
+    tokenizer_name_or_path = tokenizer_name_or_path or model_name
     if test_name not in ALL_TESTS:
         raise Exception(f"test name: {test_name} is not valid, available tests are: {list(ALL_TESTS.keys())}")
 
@@ -36,24 +39,23 @@ async def main():
     if tokenizer_name_or_path != model_name:
         print(f"Using tokenizer path: {tokenizer_name_or_path}")
 
-    url = wait_for_url()
-    os.environ["TINKER_BASE_URL"] = url
-    os.environ["TINKER_API_KEY"] = "tml-verl-tinker-local"
+    os.environ["TINKER_BASE_URL"] = base_url
+    os.environ["TINKER_API_KEY"] = api_key
 
-    print(f"got url at: {url}")
+    print(f"Using Tinker server URL: {base_url}")
 
-    wait_for_healthz_ready(url)
+    wait_for_healthz_ready(base_url)
 
     test = ALL_TESTS[test_name]
 
     success = True
     try:
-        await test(url, model_name=model_name, tokenizer_name_or_path=tokenizer_name_or_path)
+        await test(base_url, model_name=model_name, tokenizer_name_or_path=tokenizer_name_or_path)
     except Exception as e:
         success = False
         print(f"test failed: {test_name}: {e}")
     finally:
-        shutdown_server(url)
+        shutdown_server(base_url)
 
     if success:
         return 0
@@ -62,4 +64,43 @@ async def main():
 
 
 if __name__ == "__main__":
-    raise SystemExit(asyncio.run(main()))
+    parser = argparse.ArgumentParser(description="Run one verl_tinker client example against a Tinker server.")
+    parser.add_argument(
+        "--test-name",
+        choices=sorted(ALL_TESTS),
+        default="sft_tulu3",
+        help="Client workload to run.",
+    )
+    parser.add_argument(
+        "--model-name",
+        default=DEFAULT_MODEL_NAME,
+        help="Model name sent to the Tinker Cookbook workload.",
+    )
+    parser.add_argument(
+        "--tokenizer-name-or-path",
+        default=None,
+        help="Tokenizer path/name override. Defaults to --model-name.",
+    )
+    parser.add_argument(
+        "--base-url",
+        default=DEFAULT_BASE_URL,
+        help="Tinker server base URL.",
+    )
+    parser.add_argument(
+        "--api-key",
+        default=DEFAULT_API_KEY,
+        help="Tinker API key compatibility value.",
+    )
+    args = parser.parse_args()
+
+    raise SystemExit(
+        asyncio.run(
+            main(
+                test_name=args.test_name,
+                model_name=args.model_name,
+                tokenizer_name_or_path=args.tokenizer_name_or_path,
+                base_url=args.base_url,
+                api_key=args.api_key,
+            )
+        )
+    )

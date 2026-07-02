@@ -1,19 +1,7 @@
-import os
 import time
 from urllib.parse import urljoin
 
 import requests
-
-
-def wait_for_url(psm: str | None = None, max_wait_time: int = 28800):
-    """Return the configured Tinker server URL.
-
-    Public examples use TINKER_BASE_URL when provided and otherwise assume a
-    local server.
-    """
-    del psm, max_wait_time
-    return os.environ.get("TINKER_BASE_URL", "http://127.0.0.1:8000/")
-
 
 def wait_for_healthz_ready(url: str, max_wait_time: int = 7200):
     healthz_url = urljoin(url.rstrip("/") + "/", "api/v1/healthz")
