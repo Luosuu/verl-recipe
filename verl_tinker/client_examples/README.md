@@ -6,9 +6,12 @@ environment and connect to an already-running server over HTTP.
 
 ## Setup
 
-From this directory:
+The client examples are their own `uv` project with their own environment. From
+the repository root, change into this directory before installing or running
+client code:
 
 ```bash
+cd verl_tinker/client_examples
 uv sync
 ```
 
@@ -17,30 +20,32 @@ the `verl_tinker` server package.
 
 ## Start A Server
 
-From the repository root, install and start the server first:
+Install the server from the repository root, then change into the `verl_tinker`
+recipe directory before launching it:
 
 ```bash
 ./install_verl.sh --recipe verl_tinker
-pip install -e verl_tinker
+cd verl_tinker
 
 python -m verl_tinker.start \
-  --config verl_tinker/configs/quick_start/actor_rollout.yaml
+  --config configs/quick_start/actor_rollout.yaml
 ```
 
 For SFT-only tests that do not need sampling, use:
 
 ```bash
 python -m verl_tinker.start \
-  --config verl_tinker/configs/quick_start/actor.yaml
+  --config configs/quick_start/actor.yaml
 ```
 
 ## Run A Workload
 
-In another shell:
+In another shell, change into the client examples directory so `uv run` uses the
+client environment:
 
 ```bash
 cd verl_tinker/client_examples
-uv run tasks/run_single_test.py \
+uv run run_single_test.py \
   --base-url http://127.0.0.1:8000/ \
   --test-name sft_tulu3
 ```

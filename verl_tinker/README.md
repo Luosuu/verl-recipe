@@ -64,6 +64,13 @@ local Ray runtime.
 
 ## Start The Server
 
+Start the server from inside the `verl_tinker` recipe directory. The config
+paths below are relative to that directory:
+
+```bash
+cd verl_tinker
+```
+
 Actor + rollout:
 
 ```bash
@@ -127,13 +134,15 @@ client = tinker.ServiceClient(base_url=os.environ["TINKER_BASE_URL"])
 ## Run The Included Client Examples
 
 The examples intentionally use a separate client environment, because real
-Tinker clients do not need the server package or core VeRL installed.
+Tinker clients do not need the server package or core VeRL installed. Open a
+separate shell, change into the client examples directory, and run the client
+commands from there:
 
 ```bash
 cd verl_tinker/client_examples
 uv sync
 
-uv run tasks/run_single_test.py \
+uv run run_single_test.py \
   --base-url http://127.0.0.1:8000/ \
   --test-name sft_tulu3
 ```
