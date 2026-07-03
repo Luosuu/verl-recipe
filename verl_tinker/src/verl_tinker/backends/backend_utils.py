@@ -6,7 +6,6 @@ from typing import Any
 import ray
 from ray.util.state import get_actor, get_placement_group
 
-
 _DEFAULT_SHUTDOWN_TIMEOUT_S = 60.0
 _SHUTDOWN_POLL_INTERVAL_S = 0.5
 

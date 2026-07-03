@@ -6,7 +6,6 @@ from omegaconf import DictConfig, ListConfig, OmegaConf
 from verl.trainer.ppo.utils import need_reference_policy
 from verl.utils.config import validate_config
 
-
 _MISSING_VALUES = (None, "", "???")
 _DEFAULT_MICRO_BATCH_SIZE_PER_GPU = 1
 _ACTOR_CHECKPOINT_CONTENTS = ["model", "optimizer", "extra", "hf_model"]

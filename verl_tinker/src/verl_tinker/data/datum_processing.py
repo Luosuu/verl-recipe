@@ -4,7 +4,6 @@ import torch
 from fastapi import HTTPException
 from tensordict import TensorDict
 
-
 # ============================================================
 # Datum → TensorDict translation (inverse of data_converter.py)
 # ============================================================

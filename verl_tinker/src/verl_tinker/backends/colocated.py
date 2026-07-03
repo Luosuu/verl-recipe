@@ -50,7 +50,6 @@ from ..schemas import ServerCapabilities
 from ._loss import is_ref_in_actor, make_branching_loss
 from .backend_utils import kill_ray_actors_and_wait, remove_placement_groups_and_wait
 
-
 logger = logging.getLogger("ray")
 
 

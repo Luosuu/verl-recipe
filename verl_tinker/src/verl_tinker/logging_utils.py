@@ -19,7 +19,6 @@ from __future__ import annotations
 import logging
 import os
 
-
 _LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 _DEFAULT_LOG_LEVEL = logging.INFO
 _CONFIGURED_PID: int | None = None

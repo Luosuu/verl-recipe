@@ -32,7 +32,6 @@ from .data.datum_processing import (
     _datums_to_update_actor_td,
 )
 
-
 logger = logging.getLogger(__name__)
 
 GLOBAL_SESSION_ID = "verl-remote-actor"
@@ -78,13 +77,13 @@ def _format_topk_prompt_logprobs(
         return None
 
     out: list[list[tuple[int, float]]] = []
-    for ids_row, logprobs_row in zip(prompt_ids, prompt_logprobs):
+    for ids_row, logprobs_row in zip(prompt_ids, prompt_logprobs, strict=False):
         if ids_row is None or logprobs_row is None:
             out.append([])
             continue
 
         row: list[tuple[int, float]] = []
-        for token_id, logprob in zip(ids_row, logprobs_row):
+        for token_id, logprob in zip(ids_row, logprobs_row, strict=False):
             if token_id is None or logprob is None:
                 continue
             row.append((int(token_id), float(logprob)))
@@ -157,7 +156,7 @@ async def forward(engine, datums) -> dict:
     if len(per_sample) != len(datums):
         raise RuntimeError(f"compute_log_prob returned {len(per_sample)} samples but request carried {len(datums)}.")
 
-    for lp_t, datum in zip(per_sample, datums):
+    for lp_t, datum in zip(per_sample, datums, strict=False):
         lp = lp_t.detach().float().cpu()
         expected_valid_len = len(datum.model_input.to_ints()) + 1
         if lp.numel() != expected_valid_len:

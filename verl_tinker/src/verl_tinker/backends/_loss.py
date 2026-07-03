@@ -27,7 +27,6 @@ from omegaconf import DictConfig
 from verl.utils.config import omega_conf_to_dataclass
 from verl.workers.utils.losses import ppo_loss, sft_loss
 
-
 __all__ = ["is_ref_in_actor", "make_branching_loss"]
 
 

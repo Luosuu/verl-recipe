@@ -3,6 +3,7 @@ from urllib.parse import urljoin
 
 import requests
 
+
 def wait_for_healthz_ready(url: str, max_wait_time: int = 7200):
     healthz_url = urljoin(url.rstrip("/") + "/", "api/v1/healthz")
     print(f"waiting for server health at: {healthz_url}")

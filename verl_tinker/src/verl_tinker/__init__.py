@@ -14,7 +14,6 @@
 
 from .logging_utils import configure_tinker_server_logging
 
-
 configure_tinker_server_logging()
 
 __all__ = ["configure_tinker_server_logging"]

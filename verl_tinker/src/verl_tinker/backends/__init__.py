@@ -16,5 +16,4 @@
 
 from .colocated import ColocatedBackend, NoRolloutWorker
 
-
 __all__ = ["ColocatedBackend", "NoRolloutWorker"]
