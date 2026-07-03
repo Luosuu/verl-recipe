@@ -35,10 +35,11 @@ def is_ref_in_actor(config: DictConfig) -> bool:
 
     Adapted from RayPPOTrainer.__init__() (verl/trainer/ppo/ray_trainer.py).
     """
-    lora_rank = config.actor_rollout_ref.model.get("lora", {}).get("rank", 0)
-    if lora_rank <= 0:
-        lora_rank = config.actor_rollout_ref.model.get("lora_rank", 0)
-    return lora_rank > 0 or config.actor_rollout_ref.model.get("lora_adapter_path") is not None
+    return False  # we currently do not support lora
+    # lora_rank = config.actor_rollout_ref.model.get("lora", {}).get("rank", 0)
+    # if lora_rank <= 0:
+    #     lora_rank = config.actor_rollout_ref.model.get("lora_rank", 0)
+    # return lora_rank > 0 or config.actor_rollout_ref.model.get("lora_adapter_path") is not None
 
 
 def make_branching_loss(config: DictConfig):

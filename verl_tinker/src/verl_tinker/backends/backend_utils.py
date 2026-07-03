@@ -80,7 +80,7 @@ def _wait_for_actor_exit(actor_ids: list[str], *, logger, description: str, time
     pending = set(actor_ids)
     deadline = time.monotonic() + timeout_s
     while pending and time.monotonic() < deadline:
-        pending = {actor_id for actor_id in pending if _actor_state(actor_id) not in {None, "DEAD"}}
+        pending = {actor_id for actor_id in pending if _actor_state(actor_id) not in {None, "DEAD", "UNKNOWN"}}
         if pending:
             time.sleep(_SHUTDOWN_POLL_INTERVAL_S)
     if pending:
@@ -93,7 +93,7 @@ def _wait_for_placement_group_removal(pg_ids: list[str], *, logger, description:
         return
     pending = set(pg_ids)
     deadline = time.monotonic() + timeout_s
-    terminal_states = {None, "REMOVED", "DEAD"}
+    terminal_states = {None, "REMOVED", "DEAD", "UNKNOWN"}
     while pending and time.monotonic() < deadline:
         pending = {pg_id for pg_id in pending if _placement_group_state(pg_id) not in terminal_states}
         if pending:

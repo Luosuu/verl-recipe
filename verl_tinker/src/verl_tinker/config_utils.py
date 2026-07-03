@@ -178,8 +178,9 @@ def _validate_config(config) -> list[str]:
         errors.append("trainer.nnodes is required")
     if trainer_cfg.get("n_gpus_per_node") is None:
         errors.append("trainer.n_gpus_per_node is required")
+    else:
+        trainer_cfg.n_gpus_per_node = int(trainer_cfg.n_gpus_per_node)
 
-    trainer_cfg.n_gpus_per_node = int(trainer_cfg.n_gpus_per_node)
     if bool(config.get("critic", {}).get("enable", False)):
         errors.append("critic support has been removed from the Tinker server; set critic.enable=false")
 
