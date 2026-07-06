@@ -201,9 +201,7 @@ Most long-running operations return a `request_id`. Poll
 
 ## Contribution
 
-Contributors: [Tianle Zhong](https://luosuu.github.io/)†,
-[Huaye Zeng](https://www.wyett-zeng.com/)†, Xibin Wu, Siping Tao, Peng Wu, Yifan Pi, and Xiao Yu.
+Contributors: [Tianle Zhong](https://luosuu.github.io/)\*,
+[Huaye Zeng](https://www.wyett-zeng.com/)\*, Xibin Wu, Siping Tao, Peng Wu, Yifan Pi, and Xiao Yu.
 
-† Equal contribution.
-
-ByteDance AML/Seed
+ByteDance AML/Seed Team
