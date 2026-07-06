@@ -199,9 +199,10 @@ Most long-running operations return a `request_id`. Poll
 - Multiple clients are not isolated: they share one model state, optimizer
   state, and sampler state.
 
-## Contribution
+ ## Acknowledgement
+
+Developed by the ByteDance AML/Seed Team.
 
 Contributors: [Tianle Zhong](https://luosuu.github.io/)\*,
 [Huaye Zeng](https://www.wyett-zeng.com/)\*, Xibin Wu, Siping Tao, Peng Wu, Yifan Pi, and Xiao Yu.
 
-ByteDance AML/Seed Team
