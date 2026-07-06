@@ -204,5 +204,5 @@ Most long-running operations return a `request_id`. Poll
 Developed by the ByteDance AML/Seed Team.
 
 Contributors: [Tianle Zhong](https://luosuu.github.io/)\*,
-[Huaye Zeng](https://www.wyett-zeng.com/)\*, Xibin Wu, Siping Tao, Peng Wu, Yifan Pi, and Xiao Yu.
+[Huaye Zeng](https://www.wyett-zeng.com/)\*, [Xibin Wu](https://github.com/wuxibin89/), Siping Tao, [Peng Wu](https://www.linkedin.com/in/pengwu22/), [Yifan Pi](https://www.linkedin.com/in/yifan-pi-519971187/), and [Xiao Yu](https://www.linkedin.com/in/fishx/).
 
